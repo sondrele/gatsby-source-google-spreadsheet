@@ -28,7 +28,7 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     const buildNode = createNodeFactory(
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
-    rows.forEach((row, index) => {
+    for (let i = 0; i < rows.length; i++) {
       const node = Object.entries(rows[i]).reduce((obj, [key, value]) => {
         obj[camelCase(key)] =
           typeof value === "object" && value.stringValue !== undefined
@@ -37,13 +37,15 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
         return obj;
       }, {});
 
+      const hasProperties = Object.values(node).some(value => value !== null);
+      if (!hasProperties) {
+        break;
+      }
 
       createNode({
         ...buildNode(node),
-        id: createNodeId(
-          `${typePrefix} ${spreadsheetName} ${sheetTitle} ${index}`
-        )
+        id: createNodeId(`${typePrefix} ${spreadsheetName} ${sheetTitle} ${i}`)
       });
-    });
+    }
   });
 };

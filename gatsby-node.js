@@ -21,7 +21,7 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     await gs.authorizeJWT(credentials);
   }
 
-  (await gs.getSheetsNames()).forEach(async sheetTitle => {
+  const promises = (await gs.getSheetsNames()).map(async sheetTitle => {
     const tables = await gs.tables(sheetTitle);
     const { rows } = tables;
 
@@ -48,4 +48,5 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
       });
     }
   });
+  return Promise.all(promises);
 };

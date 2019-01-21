@@ -29,12 +29,14 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
     rows.forEach((row, index) => {
-      const node = Object.entries(row)
-        .filter(([, value]) => !!value)
-        .reduce((obj, [key, { value }]) => {
-          obj[camelCase(key)] = value;
-          return obj;
-        }, {});
+      const node = Object.entries(rows[i]).reduce((obj, [key, value]) => {
+        obj[camelCase(key)] =
+          typeof value === "object" && value.stringValue !== undefined
+            ? value.value
+            : null;
+        return obj;
+      }, {});
+
 
       createNode({
         ...buildNode(node),

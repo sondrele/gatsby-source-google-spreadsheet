@@ -8,7 +8,8 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     spreadsheetId,
     spreadsheetName = "",
     typePrefix = "GoogleSpreadsheet",
-    credentials
+    credentials,
+    mapValue = value => value
   } = pluginOptions;
 
   const { createNodeFactory } = createNodeHelpers({
@@ -29,10 +30,10 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
     for (let i = 0; i < rows.length; i++) {
-      const node = Object.entries(rows[i]).reduce((obj, [key, value]) => {
+      const node = Object.entries(rows[i]).reduce((obj, [key, cell]) => {
         obj[camelCase(key)] =
-          typeof value === "object" && value.stringValue !== undefined
-            ? value.value
+          typeof cell === "object" && cell.stringValue !== undefined
+            ? mapValue(cell.value, key, cell)
             : null;
         return obj;
       }, {});

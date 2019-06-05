@@ -29,8 +29,8 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     const buildNode = createNodeFactory(
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
-    for (let i = 0; i < rows.length; i++) {
-      const node = Object.entries(rows[i]).reduce((obj, [key, cell]) => {
+    rows.forEach((row, i) => {
+      const node = Object.entries(row).reduce((obj, [key, cell]) => {
         if (key === undefined || key === "undefined") {
           return obj;
         }
@@ -46,15 +46,15 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
       }, {});
 
       const hasProperties = Object.values(node).some(value => value !== null);
-      if (!hasProperties) {
-        break;
+      if (hasProperties) {
+        createNode({
+          ...buildNode(node),
+          id: createNodeId(
+            `${typePrefix} ${spreadsheetName} ${sheetTitle} ${i}`
+          )
+        });
       }
-
-      createNode({
-        ...buildNode(node),
-        id: createNodeId(`${typePrefix} ${spreadsheetName} ${sheetTitle} ${i}`)
-      });
-    }
+    });
   });
   return Promise.all(promises);
 };

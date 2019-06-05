@@ -121,4 +121,3 @@ With the following result:
 
 - In order to automatically parse cell values as numbers and dates, you need to specify the format of the column (or the cell)
   in your spreadsheet.
-- If an empty row is encountered in a sheet, all further rows will be excluded - even if they have data.

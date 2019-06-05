@@ -31,11 +31,18 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     );
     for (let i = 0; i < rows.length; i++) {
       const node = Object.entries(rows[i]).reduce((obj, [key, cell]) => {
-        obj[camelCase(key)] =
+        if (key === undefined || key === "undefined") {
+          return obj;
+        }
+
+        // `node-sheets` adds default values for missing numbers and dates, by checking
+        // for the precense of `stringValue` (the formatted value), we can ensure that
+        // the value actually exists
+        const value =
           typeof cell === "object" && cell.stringValue !== undefined
             ? mapValue(cell.value, key, cell)
             : null;
-        return obj;
+        obj[camelCase(key)] = value;
       }, {});
 
       const hasProperties = Object.values(node).some(value => value !== null);

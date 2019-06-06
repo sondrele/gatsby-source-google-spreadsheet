@@ -42,9 +42,17 @@ The plugin is based on the [node-sheets](https://github.com/urbancups/node-sheet
     // and parse it directly:
     credentials: JSON.parse(GOOGLE_SERVICE_ACCOUNT_CREDENTIALS),
 
-    // The `mapValue(value, key, cell)` function lets you map each cell's value to your need.
-    // For example, it can be used to ensure that all strings are trimmed:
-    mapValue: value => typeof value === "string" ? value.trim() : value
+    // Simple node transformation during node sourcing can be achieved by implementing the following functions
+    // - `filterNode`
+    // - `mapNode`
+    //
+    // By implementing a `filterNode(node): boolean` function, you can choose to eliminate some nodes before
+    // they're added to Gatsby, the default behaviour is to include all nodes:
+    filterNode: () => true,
+
+    // By implementing a `mapNode(node): node` function, you can provide your own node transformations directly
+    // during node sourcing, the default implementation is to return the node as is:
+    mapNode: node => node
   }
 }
 ```

@@ -9,7 +9,8 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     spreadsheetName = "",
     typePrefix = "GoogleSpreadsheet",
     credentials,
-    mapValue = value => value
+    filterNode = () => true,
+    mapNode = node => node
   } = pluginOptions;
 
   const { createNodeFactory } = createNodeHelpers({
@@ -29,32 +30,40 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     const buildNode = createNodeFactory(
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
-    rows.forEach((row, i) => {
-      const node = Object.entries(row).reduce((obj, [key, cell]) => {
-        if (key === undefined || key === "undefined") {
-          return obj;
+    rows
+      .map(toNode)
+      .filter(filterNode)
+      .map(mapNode)
+      .forEach((node, i) => {
+        const hasProperties = Object.values(node).some(value => value !== null);
+        if (hasProperties) {
+          createNode({
+            ...buildNode(node),
+            id: createNodeId(
+              `${typePrefix} ${spreadsheetName} ${sheetTitle} ${i}`
+            )
+          });
         }
-
-        // `node-sheets` adds default values for missing numbers and dates, by checking
-        // for the precense of `stringValue` (the formatted value), we can ensure that
-        // the value actually exists
-        const value =
-          typeof cell === "object" && cell.stringValue !== undefined
-            ? mapValue(cell.value, key, cell)
-            : null;
-        obj[camelCase(key)] = value;
-      }, {});
-
-      const hasProperties = Object.values(node).some(value => value !== null);
-      if (hasProperties) {
-        createNode({
-          ...buildNode(node),
-          id: createNodeId(
-            `${typePrefix} ${spreadsheetName} ${sheetTitle} ${i}`
-          )
-        });
-      }
-    });
+      });
   });
   return Promise.all(promises);
 };
+
+function toNode(row) {
+  return Object.entries(row).reduce((obj, [key, cell]) => {
+    if (key === undefined || key === "undefined") {
+      return obj;
+    }
+
+    // `node-sheets` adds default values for missing numbers and dates, by checking
+    // for the precense of `stringValue` (the formatted value), we can ensure that
+    // the value actually exists.
+    const value =
+      typeof cell === "object" && cell.stringValue !== undefined
+        ? cell.value
+        : null;
+    obj[camelCase(key)] = value;
+
+    return obj;
+  }, {});
+}

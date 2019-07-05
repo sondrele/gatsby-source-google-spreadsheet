@@ -9,7 +9,8 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
     spreadsheetName = "",
     typePrefix = "GoogleSpreadsheet",
     credentials,
-    mapValue = value => value
+    mapValue = value => value,
+    mapKey = key => camelCase(key)
   } = pluginOptions;
 
   const { createNodeFactory } = createNodeHelpers({
@@ -25,13 +26,12 @@ exports.sourceNodes = async ({ actions, createNodeId }, pluginOptions) => {
   const promises = (await gs.getSheetsNames()).map(async sheetTitle => {
     const tables = await gs.tables(sheetTitle);
     const { rows } = tables;
-
     const buildNode = createNodeFactory(
       camelCase(`${spreadsheetName} ${sheetTitle}`)
     );
     for (let i = 0; i < rows.length; i++) {
       const node = Object.entries(rows[i]).reduce((obj, [key, cell]) => {
-        obj[camelCase(key)] =
+        obj[mapKey(key)] =
           typeof cell === "object" && cell.stringValue !== undefined
             ? mapValue(cell.value, key, cell)
             : null;

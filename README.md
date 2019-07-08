@@ -48,7 +48,7 @@ The plugin is based on the [node-sheets](https://github.com/urbancups/node-sheet
     
     // The `mapKey(key)` function lets you map each cell's key as sometimes the camelcase library does a poor job guessing
     // the correct key. For example special characters and letters outside ascii might get switched to underscore.
-    mapValue: key => key === 'ääöö' ? 'aaoo' : key
+    mapKey: key => key === 'ääöö' ? 'aaoo' : key
   }
 }
 ```

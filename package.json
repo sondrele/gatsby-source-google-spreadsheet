@@ -19,5 +19,8 @@
     "camelcase": "^5.0.0",
     "gatsby-node-helpers": "^0.3.0",
     "node-sheets": "^1.0.0"
+  },
+  "resolutions": {
+    "axios": "0.18.1"
   }
 }

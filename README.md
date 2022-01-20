@@ -129,3 +129,6 @@ With the following result:
 
 - In order to automatically parse cell values as numbers and dates, you need to specify the format of the column (or the cell)
   in your spreadsheet.
+  
+## Troubleshooting
+1. If you encounter issues while fetching Spreadsheet data despite your data looks correct, ensure you don't have hidden Sheets in your document which can cause errors.
